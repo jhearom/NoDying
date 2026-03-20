@@ -11,34 +11,36 @@
         <NoWarn>CS1591</NoWarn>
         <HollowKnightFolder Condition="$([MSBuild]::IsOSPlatform('Windows'))">C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</HollowKnightFolder>
         <OutputDirectory Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(HollowKnightFolder)/Mods</OutputDirectory>
-        <HollowKnightFolder Condition="$([MSBuild]::IsOSPlatform('Linux'))">../HKManaged</HollowKnightFolder>
+        <AssemblyCSharpPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(HollowKnightFolder)/Assembly-CSharp.dll</AssemblyCSharpPath>
+        <HollowKnightFolder Condition="$([MSBuild]::IsOSPlatform('Linux'))">/codex/ModdingAPI/.codex/steam-managed-pristine</HollowKnightFolder>
         <OutputDirectory Condition="$([MSBuild]::IsOSPlatform('Linux'))">$(SolutionDir)</OutputDirectory>
+        <AssemblyCSharpPath Condition="$([MSBuild]::IsOSPlatform('Linux'))">/codex/ModdingAPI/OutputFinal/Assembly-CSharp.dll</AssemblyCSharpPath>
     </PropertyGroup>
 
     <ItemGroup>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>$(HollowKnightFolder)\Assembly-CSharp.dll</HintPath>
+            <HintPath>$(AssemblyCSharpPath)</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>$(HollowKnightFolder)\UnityEngine.dll</HintPath>
+            <HintPath>$(HollowKnightFolder)/UnityEngine.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>$(HollowKnightFolder)\UnityEngine.CoreModule.dll</HintPath>
+            <HintPath>$(HollowKnightFolder)/UnityEngine.CoreModule.dll</HintPath>
             <Private>false</Private>
         </Reference>
     </ItemGroup>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
-        <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(OutputDirectory)\$(TargetName)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(OutputDirectory)/$(TargetName)" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="CreateReleaseZip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
         <MakeDir Directories="$(ProjectDir)Output" />
         <Delete Files="$(ProjectDir)/$(TargetName).zip" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)/Output/" />
-        <Copy SourceFiles="$(SolutionDir)/README.md" DestinationFolder="$(ProjectDir)/Output/" ContinueOnError="true" />
+        <Copy SourceFiles="$(SolutionDir)/README.md" DestinationFolder="$(ProjectDir)/Output/" Condition="Exists('$(SolutionDir)/README.md')" />
         <ZipDirectory DestinationFile="$(ProjectDir)/$(TargetName).zip" SourceDirectory="$(ProjectDir)/Output" />
         <RemoveDir Directories="$(ProjectDir)Output" />
 
